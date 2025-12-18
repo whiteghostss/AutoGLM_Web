@@ -5,3 +5,9 @@ export type Message = {
   role: 'user' | 'agent';
   content: ReactNode;
 };
+
+export type Chat = {
+  id: string;
+  title: string;
+  messages: Message[];
+};

@@ -2,6 +2,7 @@
 
 import { translateToAgentCommands } from '@/ai/flows/translate-to-agent-commands';
 import { summarizeAgentErrorReports } from '@/ai/flows/summarize-agent-error-reports';
+import { summarizeText } from '@/ai/flows/summarize-text';
 import { ZodError } from 'zod';
 
 // Mock function to simulate executing ADB commands
@@ -61,5 +62,15 @@ export async function processUserCommand(instruction: string, deviceId: string):
       return "There was an issue with the data format from the AI model. Please try again.";
     }
     return "I'm sorry, I encountered an error trying to process your request. Please check the server console for more details.";
+  }
+}
+
+export async function summarizeTitle(text: string): Promise<string> {
+  try {
+    const { summary } = await summarizeText({ text });
+    return summary;
+  } catch (error) {
+    console.error("Error summarizing title:", error);
+    return "New Chat";
   }
 }

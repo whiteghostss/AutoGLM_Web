@@ -5,15 +5,20 @@ import {
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  SidebarTrigger
+  SidebarTrigger,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast"
-import { Wifi, KeyRound, Save, Bot, Sun, Moon, History, PlusSquare } from 'lucide-react';
+import { Wifi, KeyRound, Save, Bot, Sun, Moon, History, PlusSquare, MessageSquare } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
+import type { Chat } from '@/lib/types';
+import { ScrollArea } from '../ui/scroll-area';
 
 type Config = {
   deviceId: string;
@@ -25,9 +30,11 @@ type AppSidebarProps = {
   config: Config;
   onConfigChange: (newConfig: Partial<Config>) => void;
   onNewChat: () => void;
+  chatHistory: Chat[];
+  onSwitchChat: (chatId: string) => void;
 };
 
-const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat }) => {
+const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, chatHistory, onSwitchChat }) => {
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -52,7 +59,7 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat }) 
         <SidebarTrigger />
       </SidebarHeader>
       <Separator />
-      <SidebarContent className="p-4">
+      <SidebarContent className="p-4 flex flex-col">
         <div className="space-y-6">
           <div className="space-y-3">
             <h2 className="font-semibold text-base flex items-center gap-2">
@@ -78,6 +85,21 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat }) 
              <Button variant="outline" className="w-full" onClick={onNewChat}>
                 <PlusSquare size={16} /> New Chat
              </Button>
+             <ScrollArea className="h-48">
+              <SidebarMenu>
+                  {chatHistory.slice(0, 5).map(chat => (
+                    <SidebarMenuItem key={chat.id}>
+                      <SidebarMenuButton onClick={() => onSwitchChat(chat.id)} variant="ghost" className="w-full justify-start">
+                        <MessageSquare />
+                        <span className="truncate">{chat.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+              </SidebarMenu>
+             </ScrollArea>
+             {chatHistory.length > 5 && (
+              <Button variant="link" className="w-full">View all history</Button>
+             )}
           </div>
           <div className="space-y-3">
             <h2 className="font-semibold text-base flex items-center gap-2">

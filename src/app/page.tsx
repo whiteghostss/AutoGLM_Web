@@ -7,33 +7,60 @@ import ChatInterface from '@/components/chat/chat-interface';
 import { useConfig } from '@/hooks/use-config';
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarHeader, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
-import type { Message } from '@/lib/types';
+import type { Message, Chat } from '@/lib/types';
+import { processUserCommand, summarizeTitle } from '@/app/actions';
 
 
 export default function Home() {
   const { config, saveConfig, isLoaded } = useConfig();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [activeChat, setActiveChat] = useState<Chat>({ id: 'new-chat', title: 'New Chat', messages: [] });
+  const [chatHistory, setChatHistory] = useState<Chat[]>([]);
 
   const handleNewChat = () => {
-    setMessages([]);
+    // Save the current chat if it has messages
+    if (activeChat.messages.length > 0 && activeChat.id === 'new-chat') {
+      const newChat = { ...activeChat, id: crypto.randomUUID(), title: activeChat.title };
+      setChatHistory(prev => [newChat, ...prev]);
+    } else if (activeChat.messages.length > 0) {
+      // Update existing chat in history
+      setChatHistory(prev => prev.map(chat => chat.id === activeChat.id ? activeChat : chat));
+    }
+    setActiveChat({ id: 'new-chat', title: 'New Chat', messages: [] });
+  };
+
+  const switchChat = (chatId: string) => {
+    const chat = chatHistory.find(c => c.id === chatId);
+    if (chat) {
+      setActiveChat(chat);
+    }
   }
+  
 
   return (
     <main>
       <SidebarProvider>
         <Sidebar>
           {isLoaded ? (
-            <AppSidebar config={config} onConfigChange={saveConfig} onNewChat={handleNewChat} />
+            <AppSidebar 
+              config={config} 
+              onConfigChange={saveConfig} 
+              onNewChat={handleNewChat}
+              chatHistory={chatHistory}
+              onSwitchChat={switchChat}
+            />
           ) : (
             <SidebarSkeleton />
           )}
         </Sidebar>
         <SidebarInset>
           <ChatInterface 
+            key={activeChat.id}
+            chat={activeChat}
+            setChat={setActiveChat}
             deviceId={isLoaded ? config.deviceId : ''} 
             onNewChat={handleNewChat}
-            messages={messages}
-            setMessages={setMessages}
+            processUserCommand={processUserCommand}
+            summarizeTitle={summarizeTitle}
           />
         </SidebarInset>
       </SidebarProvider>
