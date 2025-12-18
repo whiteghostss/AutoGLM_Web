@@ -61,8 +61,9 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
             aria-label="Attach file"
+            className="h-12 w-12"
         >
-            <Paperclip size={18} />
+            <Paperclip size={24} />
         </Button>
       </div>
 
@@ -72,7 +73,7 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={file ? `${file.name} attached` : "Tell the agent what to do..."}
-        className="pl-14 pr-14 min-h-[78px] max-h-48 resize-none"
+        className="pl-20 pr-14 min-h-[40px] max-h-48 resize-none py-3"
         rows={1}
         disabled={isLoading}
         aria-label="Chat input"

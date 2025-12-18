@@ -113,17 +113,6 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
               <KeyRound size={18} />
               API Keys
             </h2>
-            <div className="space-y-1.5">
-              <Label htmlFor="apiKey">Genkit API Key</Label>
-              <Input
-                id="apiKey"
-                type="password"
-                value={config.apiKey}
-                onChange={(e) => onConfigChange({ apiKey: e.target.value })}
-                placeholder="Enter your API key"
-              />
-              <p className="text-xs text-muted-foreground">Your key is stored locally in your browser.</p>
-            </div>
              <div className="space-y-1.5">
               <Label htmlFor="qwenApiKey">Qwen API Key</Label>
               <Input
