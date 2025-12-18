@@ -83,7 +83,7 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
              <Button variant="outline" className="w-full" onClick={onNewChat}>
                 <PlusSquare size={16} /> New Chat
              </Button>
-             <ScrollArea className="h-48">
+             <ScrollArea className="h-24">
               <SidebarMenu>
                   {chatHistory.slice(0, 5).map(chat => (
                     <SidebarMenuItem key={chat.id}>

@@ -53,15 +53,15 @@ export default function Home() {
           )}
         </Sidebar>
         <SidebarInset>
-          <ChatInterface 
-            key={activeChat.id}
-            chat={activeChat}
-            setChat={setActiveChat}
-            deviceId={isLoaded ? config.deviceId : ''} 
-            onNewChat={handleNewChat}
-            processUserCommand={processUserCommand}
-            summarizeTitle={summarizeTitle}
-          />
+            <ChatInterface 
+              key={activeChat.id}
+              chat={activeChat}
+              setChat={setActiveChat}
+              deviceId={isLoaded ? config.deviceId : ''} 
+              onNewChat={handleNewChat}
+              processUserCommand={processUserCommand}
+              summarizeTitle={summarizeTitle}
+            />
         </SidebarInset>
       </SidebarProvider>
     </main>

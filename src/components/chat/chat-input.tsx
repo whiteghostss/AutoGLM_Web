@@ -72,7 +72,7 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={file ? `${file.name} attached` : "Tell the agent what to do..."}
-        className="pl-14 pr-14 min-h-[52px] max-h-48 resize-none"
+        className="pl-14 pr-14 min-h-[78px] max-h-48 resize-none"
         rows={1}
         disabled={isLoading}
         aria-label="Chat input"
@@ -80,7 +80,7 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
       <Button
         type="submit"
         size="icon"
-        className="absolute right-3 top-[14px] h-9 w-9"
+        className="absolute right-3 top-1/2 -translate-y-1/2 h-9 w-9"
         onClick={handleSend}
         disabled={isLoading || (!input.trim() && !file)}
         aria-label="Send message"
