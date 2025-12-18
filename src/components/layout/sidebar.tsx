@@ -22,7 +22,9 @@ import { ScrollArea } from '../ui/scroll-area';
 type Config = {
   deviceId: string;
   apiKey: string;
+  qwenApiKey: string;
   theme: 'light' | 'dark';
+  useQwen3: boolean;
 };
 
 type AppSidebarProps = {
@@ -46,6 +48,13 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
 
   const handleThemeChange = (isDark: boolean) => {
     onConfigChange({ theme: isDark ? 'dark' : 'light' });
+  };
+  
+  const handleQwen3Change = (useQwen3: boolean) => {
+    onConfigChange({ useQwen3 });
+    if(useQwen3 && !config.qwenApiKey) {
+        onConfigChange({ qwenApiKey: 'sk-b4d710d02b0f49b1908ff05a08263918' });
+    }
   };
 
   return (
@@ -115,6 +124,16 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
               />
               <p className="text-xs text-muted-foreground">Your key is stored locally in your browser.</p>
             </div>
+             <div className="space-y-1.5">
+              <Label htmlFor="qwenApiKey">Qwen API Key</Label>
+              <Input
+                id="qwenApiKey"
+                type="password"
+                value={config.qwenApiKey}
+                onChange={(e) => onConfigChange({ qwenApiKey: e.target.value })}
+                placeholder="Enter your Qwen API key"
+              />
+            </div>
           </div>
            <div className="space-y-3">
             <h2 className="font-semibold text-base flex items-center gap-2">
@@ -131,6 +150,21 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
                 id="theme-switch"
                 checked={config.theme === 'dark'}
                 onCheckedChange={handleThemeChange}
+              />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  <Bot size={18} />
+                  <Label htmlFor="qwen3-switch">
+                    QWen3
+                  </Label>
+                </div>
+              <Switch
+                id="qwen3-switch"
+                checked={config.useQwen3}
+                onCheckedChange={handleQwen3Change}
               />
             </div>
           </div>

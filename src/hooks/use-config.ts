@@ -5,7 +5,9 @@ import { useState, useEffect, useCallback } from 'react';
 type Config = {
   deviceId: string;
   apiKey: string;
+  qwenApiKey: string;
   theme: 'light' | 'dark';
+  useQwen3: boolean;
 };
 
 const CONFIG_STORAGE_KEY = 'autoglym-studio-config';
@@ -14,7 +16,9 @@ export function useConfig() {
   const [config, setConfig] = useState<Config>({
     deviceId: 'zerotier-device-id',
     apiKey: '',
+    qwenApiKey: '',
     theme: 'light',
+    useQwen3: false,
   });
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -24,7 +28,7 @@ export function useConfig() {
       if (storedConfig) {
         const parsedConfig = JSON.parse(storedConfig);
         const newConfig = {
-          ...{ theme: 'light' }, // default theme
+          ...{ theme: 'light', useQwen3: false, qwenApiKey: '' }, // default theme
           ...parsedConfig,
         }
         setConfig(newConfig);

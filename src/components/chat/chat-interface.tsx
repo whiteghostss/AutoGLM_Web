@@ -59,11 +59,11 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
         content: agentResponse,
       };
       setMessages(prev => [...prev.slice(0, -1), agentMessage]);
-    } catch (error) {
+    } catch (error: any) {
        const errorMessage: Message = {
         id: crypto.randomUUID(),
         role: 'agent',
-        content: 'Sorry, an unexpected error occurred. Please check the console.',
+        content: error.message || 'Sorry, an unexpected error occurred. Please check the console.',
       };
       setMessages(prev => [...prev.slice(0, -1), errorMessage]);
       toast({
@@ -77,7 +77,9 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
   }
 
   const handleSendMessage = async (userInput: string, file?: File) => {
-    if (!userInput.trim() || isLoading) return;
+    if ((!userInput.trim() && !file) || isLoading) return;
+    
+    let combinedInput = userInput;
 
     // Handle file upload if present
     if (file) {
@@ -88,13 +90,16 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
         description: `${file.name} is ready to be sent.`,
       });
       // For now, let's just append the file name to the message
-      userInput = `${userInput}\n\n[File: ${file.name}]`;
+      combinedInput = `${userInput}\n\n[File: ${file.name}]`;
     }
+    
+    if(!combinedInput.trim()) return;
+
 
     const userMessage: Message = {
       id: crypto.randomUUID(),
       role: 'user',
-      content: userInput,
+      content: combinedInput,
     };
     
     setMessages(prev => [...prev, userMessage, {
@@ -109,7 +114,7 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
       )
     }]);
 
-    await runAgent(userInput);
+    await runAgent(combinedInput);
   };
 
   const handleEditMessage = (messageId: string, newContent: string) => {

@@ -4,6 +4,8 @@ import { translateToAgentCommands } from '@/ai/flows/translate-to-agent-commands
 import { summarizeAgentErrorReports } from '@/ai/flows/summarize-agent-error-reports';
 import { summarizeText } from '@/ai/flows/summarize-text';
 import { ZodError } from 'zod';
+import { configureGenkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
 // Mock function to simulate executing ADB commands
 async function executeAdbCommands(commands: string, deviceId: string): Promise<string> {
@@ -41,7 +43,6 @@ async function executeAdbCommands(commands: string, deviceId: string): Promise<s
   `;
 }
 
-
 export async function processUserCommand(instruction: string, deviceId: string): Promise<string> {
   if (!instruction) {
     return "Please provide an instruction.";
@@ -49,6 +50,11 @@ export async function processUserCommand(instruction: string, deviceId: string):
   if (!deviceId) {
     return "Device ID is not configured. Please set it in the sidebar.";
   }
+
+  // Always configure for googleAI, removing the qwen logic.
+  configureGenkit({
+      plugins: [googleAI()],
+  });
 
   try {
     const { commands } = await translateToAgentCommands({ instruction });
