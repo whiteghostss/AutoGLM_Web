@@ -12,11 +12,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast"
-import { Wifi, KeyRound, Save, Bot } from 'lucide-react';
+import { Wifi, KeyRound, Save, Bot, Sun, Moon } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 
 type Config = {
   deviceId: string;
   apiKey: string;
+  theme: 'light' | 'dark';
 };
 
 type AppSidebarProps = {
@@ -28,11 +30,15 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange }) => {
   const { toast } = useToast();
 
   const handleSave = () => {
-    onConfigChange(config);
+    // onConfigChange is already called when inputs change, but we keep this for explicit save action
     toast({
       title: "Configuration Saved",
       description: "Your settings have been successfully saved.",
     });
+  };
+
+  const handleThemeChange = (isDark: boolean) => {
+    onConfigChange({ theme: isDark ? 'dark' : 'light' });
   };
 
   return (
@@ -78,6 +84,24 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange }) => {
                 placeholder="Enter your API key"
               />
               <p className="text-xs text-muted-foreground">Your key is stored locally in your browser.</p>
+            </div>
+          </div>
+           <div className="space-y-3">
+            <h2 className="font-semibold text-base flex items-center gap-2">
+              Appearance
+            </h2>
+            <div className="flex items-center justify-between rounded-lg border p-3 shadow-sm">
+                <div className="flex items-center space-x-2">
+                  {config.theme === 'light' ? <Sun size={18}/> : <Moon size={18} />}
+                  <Label htmlFor="theme-switch">
+                    {config.theme === 'light' ? 'Light Mode' : 'Dark Mode'}
+                  </Label>
+                </div>
+              <Switch
+                id="theme-switch"
+                checked={config.theme === 'dark'}
+                onCheckedChange={handleThemeChange}
+              />
             </div>
           </div>
         </div>
