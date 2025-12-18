@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/translate-to-agent-commands.ts';
+import '@/ai/flows/summarize-agent-error-reports.ts';
