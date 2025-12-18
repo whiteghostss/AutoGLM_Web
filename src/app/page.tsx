@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/layout/sidebar';
 import ChatInterface from '@/components/chat/chat-interface';
 import { useConfig } from '@/hooks/use-config';
@@ -39,7 +39,7 @@ export default function Home() {
   return (
     <main>
       <SidebarProvider>
-        <Sidebar>
+        <Sidebar collapsible="icon">
           {isLoaded ? (
             <AppSidebar 
               config={config} 

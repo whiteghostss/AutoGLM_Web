@@ -5,7 +5,6 @@ import {
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  SidebarTrigger,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -56,7 +55,6 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
           <Bot className="text-primary" />
           <h1 className="text-lg font-semibold font-headline">AutoGLM Studio</h1>
         </div>
-        <SidebarTrigger />
       </SidebarHeader>
       <Separator />
       <SidebarContent className="p-4 flex flex-col">

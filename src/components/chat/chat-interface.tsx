@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Bot, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { SidebarTrigger } from '@/components/ui/sidebar';
 
 interface ChatInterfaceProps {
   chat: Chat;
@@ -172,7 +173,10 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
   return (
     <div className="flex flex-col h-screen bg-card">
       <header className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold truncate">{title}</h2>
+        <div className="flex items-center gap-2">
+            <SidebarTrigger className="md:hidden" />
+            <h2 className="text-lg font-semibold truncate">{title}</h2>
+        </div>
         <Button variant="ghost" size="icon" onClick={onNewChat}>
           <Plus size={20} />
           <span className="sr-only">New Chat</span>
