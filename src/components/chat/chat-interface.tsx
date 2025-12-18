@@ -10,8 +10,7 @@ import { Bot } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 
-const ChatInterface: FC<{ deviceId: string }> = ({ deviceId }) => {
-  const [messages, setMessages] = useState<Message[]>([]);
+const ChatInterface: FC<{ deviceId: string; onNewChat: () => void; messages: Message[]; setMessages: (messages: Message[]) => void; }> = ({ deviceId, onNewChat, messages, setMessages }) => {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -27,29 +26,9 @@ const ChatInterface: FC<{ deviceId: string }> = ({ deviceId }) => {
       }
     }
   }, [messages]);
-
-  const handleSendMessage = async (userInput: string) => {
-    if (!userInput.trim() || isLoading) return;
-
+  
+  const processCommand = async (userInput: string) => {
     setIsLoading(true);
-    const userMessage: Message = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: userInput,
-    };
-    
-    setMessages(prev => [...prev, userMessage, {
-      id: crypto.randomUUID(),
-      role: 'agent',
-      content: (
-        <div className="flex items-center space-x-2">
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.4s' }}></div>
-        </div>
-      )
-    }]);
-
     try {
       const agentResponse = await processUserCommand(userInput, deviceId);
       const agentMessage: Message = {
@@ -73,7 +52,78 @@ const ChatInterface: FC<{ deviceId: string }> = ({ deviceId }) => {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  const handleSendMessage = async (userInput: string) => {
+    if (!userInput.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: crypto.randomUUID(),
+      role: 'user',
+      content: userInput,
+    };
+    
+    setMessages(prev => [...prev, userMessage, {
+      id: crypto.randomUUID(),
+      role: 'agent',
+      content: (
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      )
+    }]);
+
+    await processCommand(userInput);
   };
+
+  const handleEditMessage = (messageId: string, newContent: string) => {
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    if (messageIndex === -1) return;
+
+    const updatedMessages = [...messages];
+    updatedMessages[messageIndex].content = newContent;
+
+    // Remove subsequent messages and add loading indicator
+    const resubmittedMessages = updatedMessages.slice(0, messageIndex + 1);
+     setMessages([...resubmittedMessages, {
+      id: crypto.randomUUID(),
+      role: 'agent',
+      content: (
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      )
+    }]);
+
+    processCommand(newContent);
+  };
+
+  const handleRetry = (messageId: string) => {
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    if (messageIndex === -1 || messages[messageIndex].role !== 'user') return;
+
+    const userInput = messages[messageIndex].content as string;
+    
+    const subsequentMessages = messages.slice(0, messageIndex + 1);
+
+    setMessages([...subsequentMessages, {
+      id: crypto.randomUUID(),
+      role: 'agent',
+      content: (
+        <div className="flex items-center space-x-2">
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse"></div>
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+        </div>
+      )
+    }]);
+
+    processCommand(userInput);
+  }
   
   return (
     <div className="flex flex-col h-screen bg-card">
@@ -89,7 +139,14 @@ const ChatInterface: FC<{ deviceId: string }> = ({ deviceId }) => {
                 </p>
               </div>
             ) : (
-              messages.map(message => <ChatMessage key={message.id} message={message} />)
+              messages.map(message => (
+                <ChatMessage 
+                  key={message.id} 
+                  message={message} 
+                  onEdit={handleEditMessage}
+                  onRetry={handleRetry}
+                />
+              ))
             )}
           </div>
         </ScrollArea>

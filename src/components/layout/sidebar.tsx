@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from "@/hooks/use-toast"
-import { Wifi, KeyRound, Save, Bot, Sun, Moon } from 'lucide-react';
+import { Wifi, KeyRound, Save, Bot, Sun, Moon, History, PlusSquare } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 
 type Config = {
@@ -24,9 +24,10 @@ type Config = {
 type AppSidebarProps = {
   config: Config;
   onConfigChange: (newConfig: Partial<Config>) => void;
+  onNewChat: () => void;
 };
 
-const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange }) => {
+const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat }) => {
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -68,6 +69,15 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange }) => {
               />
               <p className="text-xs text-muted-foreground">ADB over ZeroTier device ID.</p>
             </div>
+          </div>
+          <div className="space-y-3">
+             <h2 className="font-semibold text-base flex items-center gap-2">
+                <History size={18} />
+                History
+             </h2>
+             <Button variant="outline" className="w-full" onClick={onNewChat}>
+                <PlusSquare size={16} /> New Chat
+             </Button>
           </div>
           <div className="space-y-3">
             <h2 className="font-semibold text-base flex items-center gap-2">
