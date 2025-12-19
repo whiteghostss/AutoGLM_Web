@@ -1,8 +1,5 @@
 'use server';
 
-import { translateToAgentCommands } from '@/ai/flows/translate-to-agent-commands';
-import { summarizeAgentErrorReports } from '@/ai/flows/summarize-agent-error-reports';
-import { summarizeText } from '@/ai/flows/summarize-text';
 import { ZodError } from 'zod';
 import { configureGenkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
@@ -43,6 +40,18 @@ async function executeAdbCommands(commands: string, deviceId: string): Promise<s
   `;
 }
 
+async function translateToAgentCommands(instruction: string) {
+    return { commands: "mock adb command for: " + instruction};
+}
+
+async function summarizeAgentErrorReports(reports: string) {
+    return { summary: "mock summary for: " + reports};
+}
+async function summarizeText(text: string) {
+    return { summary: "mock title for: " + text};
+}
+
+
 export async function processUserCommand(instruction: string, deviceId: string): Promise<string> {
   if (!instruction) {
     return "Please provide an instruction.";
@@ -51,15 +60,10 @@ export async function processUserCommand(instruction: string, deviceId: string):
     return "Device ID is not configured. Please set it in the sidebar.";
   }
 
-  // Always configure for googleAI, removing the qwen logic.
-  configureGenkit({
-      plugins: [googleAI()],
-  });
-
   try {
-    const { commands } = await translateToAgentCommands({ instruction });
+    const { commands } = await translateToAgentCommands( instruction );
     const report = await executeAdbCommands(commands, deviceId);
-    const { summary } = await summarizeAgentErrorReports({ reports: report });
+    const { summary } = await summarizeAgentErrorReports( report );
 
     return summary;
   } catch (error) {
@@ -73,7 +77,7 @@ export async function processUserCommand(instruction: string, deviceId: string):
 
 export async function summarizeTitle(text: string): Promise<string> {
   try {
-    const { summary } = await summarizeText({ text });
+    const { summary } = await summarizeText( text );
     return summary;
   } catch (error) {
     console.error("Error summarizing title:", error);

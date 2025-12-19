@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from 'react';
-import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import AppSidebar from '@/components/layout/sidebar';
-import ChatInterface from '@/components/chat/chat-interface';
-import { useConfig } from '@/hooks/use-config';
-import { Skeleton } from '@/components/ui/skeleton';
-import { SidebarHeader, SidebarContent, SidebarFooter } from '@/components/ui/sidebar';
-import type { Message, Chat } from '@/lib/types';
-import { processUserCommand, summarizeTitle } from '@/app/actions';
+import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from '../components/ui/sidebar';
+import AppSidebar from '../components/layout/sidebar';
+import ChatInterface from '../components/chat/chat-interface';
+import { useConfig } from '../hooks/use-config';
+import { Skeleton } from '../components/ui/skeleton';
+import { SidebarHeader, SidebarContent, SidebarFooter } from '../components/ui/sidebar';
+import type { Message, Chat } from '../lib/types';
+import { processUserCommand, summarizeTitle } from './actions';
 
 
 export default function Home() {

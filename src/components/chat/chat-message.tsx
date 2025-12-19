@@ -1,14 +1,14 @@
 "use client";
 
 import { FC, useState, useRef, useEffect } from 'react';
-import type { Message } from '@/lib/types';
-import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import type { Message } from '../../lib/types';
+import { cn } from '../../lib/utils';
+import { Avatar, AvatarFallback } from '../ui/avatar';
+import { Button } from '../ui/button';
+import { Textarea } from '../ui/textarea';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { Bot, User, MoreHorizontal, Edit, RefreshCw, Copy, Check, ClipboardType } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '../../hooks/use-toast';
 
 type ChatMessageProps = {
   message: Message;

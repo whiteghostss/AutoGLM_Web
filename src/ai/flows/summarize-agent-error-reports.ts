@@ -7,7 +7,7 @@
  * - SummarizeAgentErrorReportsOutput - The return type for the summarizeAgentErrorReports function.
  */
 
-import {ai} from '@/ai/genkit';
+import {ai} from '../genkit';
 import {z} from 'genkit';
 
 const SummarizeAgentErrorReportsInputSchema = z.object({

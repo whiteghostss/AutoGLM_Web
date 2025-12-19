@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, type FC, type KeyboardEvent, useEffect } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { Textarea } from '../ui/textarea';
+import { Button } from '../ui/button';
 import { ArrowUp, Paperclip } from 'lucide-react';
 import { Input } from '../ui/input';
 
@@ -52,7 +52,7 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
 
   return (
     <div className="relative">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2">
+      <div className="absolute left-2 top-1/2 -translate-y-1/2">
         <Input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" id="file-upload" />
         <Button
             type="button"
@@ -61,9 +61,9 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
             aria-label="Attach file"
-            className="h-12 w-12"
+            className="h-9 w-9"
         >
-            <Paperclip size={32} />
+            <Paperclip size={20} />
         </Button>
       </div>
 
@@ -73,7 +73,7 @@ const ChatInput: FC<ChatInputProps> = ({ onSendMessage, isLoading }) => {
         onChange={(e) => setInput(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={file ? `${file.name} attached` : "Tell the agent what to do..."}
-        className="pl-20 pr-14 min-h-[60px] max-h-48 resize-none py-3"
+        className="pl-12 pr-14 min-h-[60px] max-h-48 resize-none py-3"
         rows={1}
         disabled={isLoading}
         aria-label="Chat input"

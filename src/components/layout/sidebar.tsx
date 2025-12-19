@@ -8,15 +8,15 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-} from '@/components/ui/sidebar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { useToast } from "@/hooks/use-toast"
+} from '../ui/sidebar';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Separator } from '../ui/separator';
+import { useToast } from "../../hooks/use-toast"
 import { Wifi, KeyRound, Save, Bot, Sun, Moon, History, PlusSquare, MessageSquare } from 'lucide-react';
-import { Switch } from '@/components/ui/switch';
-import type { Chat } from '@/lib/types';
+import { Switch } from '../ui/switch';
+import type { Chat } from '../../lib/types';
 import { ScrollArea } from '../ui/scroll-area';
 
 type Config = {
