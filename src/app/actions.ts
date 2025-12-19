@@ -1,86 +1,100 @@
 'use server';
 
-import { ZodError } from 'zod';
-import { configureGenkit } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+/**
+ * 后端 PhoneAgent HTTP 服务地址。
+ * 默认指向本机 8001 端口，可以通过环境变量覆盖：
+ *   PHONE_AGENT_SERVER_URL="http://your-host:8001"
+ */
+const PHONE_AGENT_SERVER_URL =
+  process.env.PHONE_AGENT_SERVER_URL || 'http://127.0.0.1:8001';
 
-// Mock function to simulate executing ADB commands
-async function executeAdbCommands(commands: string, deviceId: string): Promise<string> {
-  console.log(`Executing commands on ${deviceId}:\n${commands}`);
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1500));
+type PhoneAgentResponse = {
+  result: string;
+};
 
-  if (commands.toLowerCase().includes('error_test')) {
-    return `Error Report on device ${deviceId}:
-    - Task: Test Error Condition
-    - Status: Failed
-    - Details: Failed to execute command. Device with ID '${deviceId}' not found or offline. Please check the connection and device ID.
-    - Timestamp: ${new Date().toISOString()}
-    `;
-  }
-  if (commands.trim() === '') {
-    return `Execution Report on device ${deviceId}:
-    - Task: No Operation
-    - Status: Success
-    - Details: No commands were provided to execute.
-    - Timestamp: ${new Date().toISOString()}
-    `;
-  }
+type DeviceInfo = {
+  device_id: string;
+  status: string;
+  connection_type: string;
+  model?: string | null;
+};
 
-  return `
-    Execution Report on device ${deviceId}:
-    - Task: Interpreted from commands.
-    - Status: Success
-    - Details: All commands executed successfully.
-    - Output:
-      - Opened settings app.
-      - Toggled Wi-Fi off.
-      - Returned to home screen.
-    - Timestamp: ${new Date().toISOString()}
-  `;
-}
+type DevicesResponse = {
+  devices: DeviceInfo[];
+};
 
-async function translateToAgentCommands(instruction: string) {
-    return { commands: "mock adb command for: " + instruction};
-}
-
-async function summarizeAgentErrorReports(reports: string) {
-    return { summary: "mock summary for: " + reports};
-}
-async function summarizeText(text: string) {
-    return { summary: "mock title for: " + text};
-}
-
-
-export async function processUserCommand(instruction: string, deviceId: string): Promise<string> {
+export async function processUserCommand(
+  instruction: string,
+  deviceId: string,
+): Promise<string> {
   if (!instruction) {
-    return "Please provide an instruction.";
+    return 'Please provide an instruction.';
   }
   if (!deviceId) {
-    return "Device ID is not configured. Please set it in the sidebar.";
+    return 'Device ID is not configured. Please set it in the sidebar.';
   }
 
   try {
-    const { commands } = await translateToAgentCommands( instruction );
-    const report = await executeAdbCommands(commands, deviceId);
-    const { summary } = await summarizeAgentErrorReports( report );
+    const res = await fetch(`${PHONE_AGENT_SERVER_URL}/api/phone-agent/run`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        instruction,
+        device_id: deviceId,
+      }),
+    });
 
-    return summary;
-  } catch (error) {
-    console.error("Error processing user command:", error);
-    if (error instanceof ZodError) {
-      return "There was an issue with the data format from the AI model. Please try again.";
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('PhoneAgent HTTP error:', res.status, text);
+      return `Phone agent request failed: ${res.status} ${text}`;
     }
-    return "I'm sorry, I encountered an error trying to process your request. Please check the server console for more details.";
+
+    const data = (await res.json()) as PhoneAgentResponse;
+    return data.result ?? 'No result returned from phone agent.';
+  } catch (error: any) {
+    console.error('Error calling phone agent server:', error);
+    return (
+      error?.message ||
+      'Unexpected error while calling phone agent server. Please check the server logs.'
+    );
   }
 }
 
-export async function summarizeTitle(text: string): Promise<string> {
+// 获取可用设备列表
+export async function getAvailableDevices(): Promise<DeviceInfo[]> {
   try {
-    const { summary } = await summarizeText( text );
-    return summary;
-  } catch (error) {
-    console.error("Error summarizing title:", error);
-    return "New Chat";
+    const res = await fetch(`${PHONE_AGENT_SERVER_URL}/api/phone-agent/devices`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('Failed to fetch devices:', res.status, text);
+      return [];
+    }
+
+    const data = (await res.json()) as DevicesResponse;
+    return data.devices || [];
+  } catch (error: any) {
+    console.error('Error fetching devices:', error);
+    return [];
   }
 }
+
+// 简单的本地摘要逻辑，用于聊天标题
+export async function summarizeTitle(text: string): Promise<string> {
+  const trimmed = text.trim();
+  if (!trimmed) {
+    return 'New Chat';
+  }
+  // 取前 40 个字符作为标题
+  const title = trimmed.length > 40 ? `${trimmed.slice(0, 40)}...` : trimmed;
+  return title;
+}
+

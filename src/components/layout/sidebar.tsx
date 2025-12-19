@@ -14,10 +14,13 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Separator } from '../ui/separator';
 import { useToast } from "../../hooks/use-toast"
-import { Wifi, KeyRound, Save, Bot, Sun, Moon, History, PlusSquare, MessageSquare } from 'lucide-react';
+import { Wifi, KeyRound, Save, Bot, Sun, Moon, History, PlusSquare, MessageSquare, RefreshCw } from 'lucide-react';
 import { Switch } from '../ui/switch';
 import type { Chat } from '../../lib/types';
 import { ScrollArea } from '../ui/scroll-area';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { getAvailableDevices } from '../../app/actions';
+import { useState, useEffect } from 'react';
 
 type Config = {
   deviceId: string;
@@ -35,8 +38,17 @@ type AppSidebarProps = {
   onSwitchChat: (chatId: string) => void;
 };
 
+type DeviceInfo = {
+  device_id: string;
+  status: string;
+  connection_type: string;
+  model?: string | null;
+};
+
 const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, chatHistory, onSwitchChat }) => {
   const { toast } = useToast();
+  const [availableDevices, setAvailableDevices] = useState<DeviceInfo[]>([]);
+  const [isLoadingDevices, setIsLoadingDevices] = useState(false);
 
   const handleSave = () => {
     // onConfigChange is already called when inputs change, but we keep this for explicit save action
@@ -57,6 +69,58 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
     }
   };
 
+  const loadDevices = async () => {
+    setIsLoadingDevices(true);
+    try {
+      const devices = await getAvailableDevices();
+      setAvailableDevices(devices);
+      if (devices.length === 0) {
+        toast({
+          title: "No devices found",
+          description: "No ADB devices are currently connected.",
+          variant: "default",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load devices:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load device list. Please check if the backend server is running.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDevices(false);
+    }
+  };
+
+  useEffect(() => {
+    // Load devices on mount
+    loadDevices();
+  }, []);
+
+  const handleDeviceSelect = (deviceId: string) => {
+    if (deviceId === '__manual__') {
+      onConfigChange({ deviceId: '' });
+    } else {
+      onConfigChange({ deviceId });
+      toast({
+        title: "Device selected",
+        description: `Selected device: ${deviceId}`,
+      });
+    }
+  };
+
+  const isManualInput = !availableDevices.some(d => d.device_id === config.deviceId) && config.deviceId !== '';
+
+  const getDeviceDisplayName = (device: DeviceInfo) => {
+    const statusIcon = device.status === 'device' ? '✓' : '✗';
+    const typeLabel = device.connection_type === 'usb' ? 'USB' : 
+                     device.connection_type === 'wifi' ? 'WiFi' : 
+                     device.connection_type === 'remote' ? 'Remote' : '';
+    const modelInfo = device.model ? ` (${device.model})` : '';
+    return `${statusIcon} ${device.device_id} [${typeLabel}]${modelInfo}`;
+  };
+
   return (
     <>
       <SidebarHeader className="p-4 flex items-center justify-between">
@@ -74,14 +138,49 @@ const AppSidebar: FC<AppSidebarProps> = ({ config, onConfigChange, onNewChat, ch
               Agent Connection
             </h2>
             <div className="space-y-1.5">
-              <Label htmlFor="deviceId">Device ID</Label>
-              <Input
-                id="deviceId"
-                value={config.deviceId}
-                onChange={(e) => onConfigChange({ deviceId: e.target.value })}
-                placeholder="e.g., zerotier-device-id"
-              />
-              <p className="text-xs text-muted-foreground">ADB over ZeroTier device ID.</p>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="deviceId">Device ID</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={loadDevices}
+                  disabled={isLoadingDevices}
+                  className="h-7 px-2"
+                >
+                  <RefreshCw size={14} className={isLoadingDevices ? "animate-spin" : ""} />
+                </Button>
+              </div>
+              {availableDevices.length > 0 ? (
+                <Select
+                  value={isManualInput ? '__manual__' : config.deviceId}
+                  onValueChange={handleDeviceSelect}
+                >
+                  <SelectTrigger id="deviceId">
+                    <SelectValue placeholder="Select a device" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDevices.map((device) => (
+                      <SelectItem key={device.device_id} value={device.device_id}>
+                        {getDeviceDisplayName(device)}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="__manual__">Manual Input...</SelectItem>
+                  </SelectContent>
+                </Select>
+              ) : null}
+              {(availableDevices.length === 0 || isManualInput || config.deviceId === '') && (
+                <Input
+                  id="deviceId"
+                  value={config.deviceId}
+                  onChange={(e) => onConfigChange({ deviceId: e.target.value })}
+                  placeholder="e.g., 10.173.181.1:5555 or emulator-5554"
+                />
+              )}
+              <p className="text-xs text-muted-foreground">
+                {availableDevices.length > 0 
+                  ? "Select a device from the list above or enter manually."
+                  : "Enter ADB device ID (e.g., IP:port or device serial)."}
+              </p>
             </div>
           </div>
           <div className="space-y-3">
