@@ -176,8 +176,8 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
   }
   
   return (
-    <div className="flex flex-col h-screen bg-card">
-      <header className="flex items-center justify-between p-4 border-b">
+    <div className="flex flex-col h-screen bg-card max-h-screen">
+      <header className="flex items-center justify-between p-4 border-b shrink-0">
         <div className="flex items-center gap-2">
             <SidebarTrigger className="md:hidden" />
             <h2 className="text-lg font-semibold truncate">{title}</h2>
@@ -187,11 +187,11 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
           <span className="sr-only">New Chat</span>
         </Button>
       </header>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-auto">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="p-4 md:p-8 space-y-6">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[calc(100vh-220px)] text-center">
+              <div className="flex flex-col items-center justify-center h-full min-h-[calc(100vh-220px)] text-center">
                 <Bot size={48} className="text-muted-foreground mb-4" />
                 <h2 className="text-2xl font-semibold font-headline">Welcome to AutoGLM Studio</h2>
                 <p className="text-muted-foreground mt-2 max-w-md">
@@ -211,7 +211,7 @@ const ChatInterface: FC<ChatInterfaceProps> = ({ chat, setChat, deviceId, onNewC
           </div>
         </ScrollArea>
       </div>
-      <div className="border-t bg-card">
+      <div className="border-t bg-card shrink-0">
         <div className="p-4 max-w-3xl mx-auto">
             <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </div>
